@@ -39,4 +39,4 @@ hs_err_pid*
 .cache-main
 .cache-test
 
-/.DS_Store
+*.DS_Store

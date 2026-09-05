@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Studio portrait against soft window light">
+  <defs>
+    <radialGradient id="s3win" cx="0.7" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#fafafa"/>
+      <stop offset="1" stop-color="#a0a0a0"/>
+    </radialGradient>
+    <pattern id="s3g" width="180" height="180" patternUnits="userSpaceOnUse">
+      <filter id="s3n"><feTurbulence baseFrequency="0.8" numOctaves="2"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.16 0"/></filter>
+      <rect width="180" height="180" filter="url(#s3n)"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="1500" fill="url(#s3win)"/>
+  <!-- window frame on right -->
+  <rect x="780" y="200" width="380" height="800" fill="#fafafa"/>
+  <rect x="780" y="200" width="380" height="800" fill="none" stroke="#1a1a1a" stroke-width="6"/>
+  <line x1="970" y1="200" x2="970" y2="1000" stroke="#1a1a1a" stroke-width="6"/>
+  <line x1="780" y1="600" x2="1160" y2="600" stroke="#1a1a1a" stroke-width="6"/>
+  <!-- portrait subject -->
+  <g>
+    <!-- shoulder -->
+    <path d="M180 1500 Q220 1100 380 1020 L600 1020 Q760 1100 800 1500 Z" fill="#2a2a2a"/>
+    <!-- neck -->
+    <rect x="440" y="900" width="100" height="160" fill="#bababa"/>
+    <!-- face -->
+    <ellipse cx="490" cy="780" rx="170" ry="220" fill="#bababa"/>
+    <!-- shadow on face right side -->
+    <ellipse cx="430" cy="800" rx="120" ry="180" fill="#7a7a7a" opacity="0.65"/>
+    <!-- hair -->
+    <path d="M310 720 Q330 480 490 460 Q650 480 670 720 Q650 580 490 580 Q330 580 310 720 Z" fill="#0a0a0a"/>
+    <path d="M310 720 Q310 900 280 1020 L420 1020 Q380 900 380 760 Z" fill="#0a0a0a"/>
+    <!-- eyes -->
+    <ellipse cx="430" cy="780" rx="6" ry="10" fill="#0a0a0a"/>
+    <ellipse cx="540" cy="780" rx="6" ry="10" fill="#0a0a0a"/>
+    <!-- mouth -->
+    <path d="M460 880 Q490 895 520 880" stroke="#5a5a5a" stroke-width="3" fill="none"/>
+  </g>
+  <rect width="1200" height="1500" fill="url(#s3g)"/>
+</svg>

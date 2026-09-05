@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Train window with passing landscape">
+  <rect width="1200" height="1500" fill="#1a1a1a"/>
+  <!-- window frame -->
+  <rect x="120" y="240" width="960" height="1020" fill="#0a0a0a" stroke="#3a3a3a" stroke-width="6"/>
+  <!-- view through window -->
+  <rect x="140" y="260" width="920" height="980" fill="#a0a0a0"/>
+  <!-- horizon -->
+  <rect x="140" y="700" width="920" height="540" fill="#5a5a5a"/>
+  <!-- distant mountains -->
+  <path d="M140 700 L300 640 L500 680 L700 620 L900 660 L1060 640 L1060 720 L140 720 Z" fill="#3a3a3a"/>
+  <!-- motion blur lines -->
+  <g stroke="#dadada" stroke-width="2" opacity="0.5" fill="none">
+    <line x1="140" y1="800" x2="1060" y2="810"/>
+    <line x1="140" y1="850" x2="1060" y2="860"/>
+    <line x1="140" y1="900" x2="1060" y2="910"/>
+    <line x1="140" y1="970" x2="1060" y2="980"/>
+    <line x1="140" y1="1050" x2="1060" y2="1060"/>
+    <line x1="140" y1="1130" x2="1060" y2="1140"/>
+  </g>
+  <!-- reflected silhouette of subject -->
+  <path d="M400 880 Q400 720 560 720 Q620 720 640 760 L640 1240 L400 1240 Z" fill="#1a1a1a" opacity="0.85"/>
+  <ellipse cx="520" cy="700" rx="50" ry="64" fill="#0e0e0e"/>
+</svg>

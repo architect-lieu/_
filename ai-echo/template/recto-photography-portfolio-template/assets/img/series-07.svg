@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Empty bench by the sea">
+  <defs>
+    <linearGradient id="s7sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fafafa"/>
+      <stop offset="1" stop-color="#cfcfcf"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1500" fill="url(#s7sky)"/>
+  <rect y="900" width="1200" height="180" fill="#5a5a5a"/>
+  <rect y="1080" width="1200" height="420" fill="#1a1a1a"/>
+  <g opacity="0.3" stroke="#fafafa" stroke-width="1" fill="none">
+    <path d="M0 940 Q300 935 600 942 T1200 940"/>
+    <path d="M0 990 Q300 985 600 992 T1200 990"/>
+    <path d="M0 1040 Q300 1035 600 1042 T1200 1040"/>
+  </g>
+  <!-- bench -->
+  <g fill="#0a0a0a">
+    <rect x="380" y="1140" width="440" height="14"/>
+    <rect x="380" y="1170" width="440" height="14"/>
+    <rect x="380" y="1200" width="440" height="14"/>
+    <rect x="400" y="1214" width="14" height="80"/>
+    <rect x="780" y="1214" width="14" height="80"/>
+    <rect x="380" y="1110" width="6" height="44"/>
+    <rect x="816" y="1110" width="6" height="44"/>
+  </g>
+</svg>
