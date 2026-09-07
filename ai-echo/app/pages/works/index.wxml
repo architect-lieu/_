@@ -1,7 +1,7 @@
 <view class="page works-page">
   <view class="topbar"><view class="brand"><text class="brand-mark">▤</text><text>AI回音录</text></view></view>
   <view class="hero card">
-    <image class="hero-image" src="/assets/family-walk.png" mode="aspectFill" />
+    <image class="hero-image" src="/assets/family-walk.jpg" mode="aspectFill" />
     <view class="hero-shade"></view>
     <view class="hero-copy">
       <view class="hero-count">1 / 4</view>
@@ -30,7 +30,7 @@
     </view>
   </view>
   <view class="sample card">
-    <image src="/assets/old-photo.png" mode="aspectFill" />
+    <image src="/assets/old-photo.jpg" mode="aspectFill" />
     <view class="sample-copy"><text class="sample-tag">回音故事卡</text><text class="sample-title">外婆的红糖茶罐</text><text class="sample-text">从一张照片、一段声音开始，留下那些看似平常却无法重来的细节。</text></view>
   </view>
 

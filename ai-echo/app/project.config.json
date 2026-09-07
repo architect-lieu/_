@@ -30,7 +30,11 @@
   "appid": "wx88e23e0e6e3fc714",
   "simulatorPluginLibVersion": {},
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      { "type": "file", "value": "assets/family-walk.png" },
+      { "type": "file", "value": "assets/old-photo.png" },
+      { "type": "file", "value": ".DS_Store" }
+    ],
     "include": []
   },
   "editorSetting": {}

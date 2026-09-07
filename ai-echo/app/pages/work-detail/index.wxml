@@ -10,12 +10,117 @@
     <block wx:else>
       <view class="title">{{work.title}}</view>
       <view class="summary">{{work.summary}}</view>
-      <view class="content" user-select="true">{{work.content}}</view>
-      <view wx:if="{{work.uncertainties.length}}" class="uncertain card"><view class="uncertain-title">请核对这些信息</view><view wx:for="{{work.uncertainties}}" wx:key="*this">· {{item}}</view></view>
-      <view class="source card"><view class="source-title">原始转写</view><view user-select="true">{{work.sourceTranscript}}</view></view>
-      <button class="edit" bindtap="beginEdit">修改故事</button>
+      <scroll-view class="reader-tabs" scroll-x enhanced show-scrollbar="false">
+        <view class="reader-tabs-inner"><view wx:for="{{tabs}}" wx:key="id" class="reader-tab {{activeTab === item.id ? 'active' : ''}}" data-tab="{{item.id}}" bindtap="selectTab">{{item.label}}</view></view>
+      </scroll-view>
+
+      <view wx:if="{{activeTab === 'story'}}" class="reader-section">
+        <view wx:if="{{work.chapters.length}}" class="reader-shell theme-{{readerTheme}}">
+          <view class="reader-progress"><view style="width:{{chapterProgress}}%"></view></view>
+          <view class="reader-toolbar">
+            <view class="catalog-trigger" bindtap="openCatalog">☰ 目录</view>
+            <view class="mode-toggle"><view class="{{!readerEditing ? 'active' : ''}}" bindtap="cancelReaderEdit">阅读</view><view class="{{readerEditing ? 'active' : ''}}" bindtap="enterReaderEdit">修改</view></view>
+          </view>
+          <view class="reader-settings">
+            <view class="font-options">
+              <text>字号</text>
+              <button data-font="small" class="{{readerFont === 'small' ? 'active' : ''}}" bindtap="changeFont">小</button>
+              <button data-font="medium" class="{{readerFont === 'medium' ? 'active' : ''}}" bindtap="changeFont">中</button>
+              <button data-font="large" class="{{readerFont === 'large' ? 'active' : ''}}" bindtap="changeFont">大</button>
+            </view>
+            <view class="theme-options">
+              <button aria-label="白纸主题" data-theme="paper" class="theme-dot paper {{readerTheme === 'paper' ? 'active' : ''}}" bindtap="changeTheme"></button>
+              <button aria-label="暖纸主题" data-theme="warm" class="theme-dot warm {{readerTheme === 'warm' ? 'active' : ''}}" bindtap="changeTheme"></button>
+              <button aria-label="夜间主题" data-theme="night" class="theme-dot night {{readerTheme === 'night' ? 'active' : ''}}" bindtap="changeTheme"></button>
+            </view>
+          </view>
+          <view class="chapter single-chapter">
+            <view class="chapter-number">第 {{currentChapter + 1}} 章</view>
+            <view class="chapter-title">{{currentChapterData.title}}</view>
+            <textarea wx:if="{{readerEditing}}" class="chapter-edit-input font-{{readerFont}}" value="{{chapterEditContent}}" maxlength="8000" bindinput="chapterContentInput" />
+            <view wx:else class="chapter-content font-{{readerFont}}" user-select="true">{{currentChapterData.content}}</view>
+            <view wx:if="{{readerEditing}}" class="inline-edit-actions"><button bindtap="cancelReaderEdit">取消</button><button class="save-chapter" loading="{{savingChapter}}" disabled="{{savingChapter}}" bindtap="saveCurrentChapter">保存</button></view>
+            <view wx:else class="chapter-extra" bindtap="openSupplement">＋ 补充<text wx:if="{{chapterSupplementCount}}">{{chapterSupplementCount}}</text></view>
+          </view>
+          <view wx:if="{{!readerEditing}}" class="chapter-pager">
+            <button disabled="{{currentChapter === 0}}" bindtap="previousChapter">上一章</button>
+            <button class="catalog-button" bindtap="openCatalog">{{currentChapter + 1}} / {{work.chapters.length}}</button>
+            <button disabled="{{currentChapter >= work.chapters.length - 1}}" bindtap="nextChapter">下一章</button>
+          </view>
+        </view>
+        <view wx:else class="content" user-select="true">{{work.content}}</view>
+      </view>
+
+      <view wx:elif="{{activeTab === 'timeline'}}" class="reader-section">
+        <view wx:if="{{work.timeline.length}}" class="timeline"><view wx:for="{{work.timeline}}" wx:key="index" class="timeline-item"><view class="timeline-dot"></view><view class="timeline-body"><view class="timeline-time">{{item.time}} <text class="certainty certainty-{{item.certainty}}">{{item.certainty === 'confirmed' ? '明确' : (item.certainty === 'approximate' ? '约略' : '待核实')}}</text></view><view class="timeline-event">{{item.event}}</view></view></view></view>
+        <view wx:else class="empty-section">这篇旧作品暂时没有结构化时间线。</view>
+      </view>
+
+      <view wx:elif="{{activeTab === 'clues'}}" class="reader-section">
+        <view class="subheading">人物与关系</view>
+        <view wx:if="{{work.people.length}}" class="clue-grid"><view wx:for="{{work.people}}" wx:key="name" class="clue-card"><view class="clue-name">{{item.name}}</view><view class="clue-relation">{{item.relation}}</view><view class="clue-note">{{item.note}}</view></view></view>
+        <view wx:else class="empty-section">暂未提取人物关系。</view>
+        <view class="subheading artifact-heading">照片与实物线索</view>
+        <view wx:if="{{work.artifacts.length}}" class="artifact-list"><view wx:for="{{work.artifacts}}" wx:key="name" class="artifact-card"><view class="artifact-name">{{item.name}}</view><view>{{item.context}}</view><view wx:if="{{item.verification}}" class="artifact-check">核实：{{item.verification}}</view></view></view>
+        <view wx:else class="empty-section">暂未提取照片或实物线索。</view>
+      </view>
+
+      <view wx:elif="{{activeTab === 'verify'}}" class="reader-section">
+        <view class="review-nav"><view data-section="facts" class="{{reviewSection === 'facts' ? 'active' : ''}}" bindtap="selectReviewSection">核实</view><view data-section="questions" class="{{reviewSection === 'questions' ? 'active' : ''}}" bindtap="selectReviewSection">问答</view><view data-section="supplements" class="{{reviewSection === 'supplements' ? 'active' : ''}}" bindtap="selectReviewSection">补充 {{supplementCount || ''}}</view></view>
+
+        <view wx:if="{{reviewSection === 'facts'}}" class="review-list">
+          <block wx:if="{{factItems.length}}"><view wx:for="{{factItems}}" wx:key="index" class="review-card"><view class="review-question"><text>{{index + 1}}</text><view>{{item.text}}</view></view><view wx:if="{{item.resultText}}" class="review-result">{{item.resultText}}</view><view class="review-actions"><button data-index="{{item.index}}" bindtap="confirmFact">确认</button><button data-kind="fact" data-index="{{item.index}}" bindtap="openReviewEditor">更正</button><button data-index="{{item.index}}" bindtap="unknownFact">不确定</button></view></view></block>
+          <view wx:else class="empty-section">暂无</view>
+        </view>
+
+        <view wx:elif="{{reviewSection === 'questions'}}" class="review-list">
+          <block wx:if="{{questionItems.length}}"><view wx:for="{{questionItems}}" wx:key="index" class="review-card"><view class="review-question"><text>{{index + 1}}</text><view>{{item.text}}</view></view><view wx:if="{{item.resultText}}" class="review-result">{{item.resultText}}</view><view class="review-actions"><button data-kind="question" data-index="{{item.index}}" bindtap="openReviewEditor">回答</button><button data-index="{{item.index}}" bindtap="dismissQuestion">忽略</button></view></view></block>
+          <view wx:else class="empty-section">暂无</view>
+        </view>
+
+        <view wx:else class="review-list">
+          <block wx:if="{{work.supplements.length}}"><view wx:for="{{work.supplements}}" wx:key="id" class="supplement-item"><view><text>第 {{item.chapterIndex + 1}} 章</text><view>{{item.text}}</view></view><button data-index="{{index}}" bindtap="deleteSupplement">删除</button></view></block>
+          <view wx:else class="empty-section">暂无</view>
+        </view>
+      </view>
+
+      <view class="source-entry">
+        <view class="source-head" bindtap="toggleSource"><view>原始讲述</view><view>{{sourceExpanded ? '收起' : '查看'}} ›</view></view>
+        <scroll-view wx:if="{{sourceExpanded}}" class="source-scroll" scroll-y enhanced show-scrollbar="{{true}}"><view class="source-content" user-select="true">{{work.sourceTranscript}}</view></scroll-view>
+      </view>
       <button wx:if="{{work.status !== 'confirmed'}}" class="confirm" loading="{{saving}}" bindtap="confirmWork">确认内容无误</button>
       <button class="export" disabled>导出 PDF（套餐权益）</button>
     </block>
+
+    <view wx:if="{{catalogOpen}}" class="catalog-mask" bindtap="closeCatalog">
+      <view class="catalog-sheet" catchtap="noop">
+        <view class="catalog-head">
+          <view><text class="catalog-kicker">CONTENTS</text><view>章节目录</view></view>
+          <text bindtap="closeCatalog">×</text>
+        </view>
+        <scroll-view class="catalog-list" scroll-y>
+          <view wx:for="{{work.chapters}}" wx:key="id" class="catalog-item {{currentChapter === index ? 'active' : ''}}" data-index="{{index}}" bindtap="chooseChapter">
+            <text>{{index + 1}}</text><view class="catalog-title">{{item.title}}</view><view wx:if="{{currentChapter === index}}" class="reading-mark">正在阅读</view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+
+    <view wx:if="{{supplementOpen}}" class="catalog-mask" bindtap="closeSupplement">
+      <view class="supplement-sheet" catchtap="noop">
+        <view class="supplement-head"><view>补充</view><text bindtap="closeSupplement">×</text></view>
+        <textarea value="{{supplementText}}" maxlength="1000" placeholder="遗漏的经历或修改方向" focus bindinput="supplementInput" />
+        <view class="supplement-actions"><button bindtap="closeSupplement">取消</button><button class="save-supplement" loading="{{savingSupplement}}" disabled="{{savingSupplement}}" bindtap="saveSupplement">保存</button></view>
+      </view>
+    </view>
+
+    <view wx:if="{{reviewEditorOpen}}" class="catalog-mask" bindtap="closeReviewEditor">
+      <view class="supplement-sheet" catchtap="noop">
+        <view class="supplement-head"><view>{{reviewEditorKind === 'question' ? '回答' : '更正'}}</view><text bindtap="closeReviewEditor">×</text></view>
+        <view class="review-editor-title">{{reviewEditorTitle}}</view>
+        <textarea value="{{reviewDraft}}" maxlength="1000" focus bindinput="reviewInput" />
+        <view class="supplement-actions"><button bindtap="closeReviewEditor">取消</button><button class="save-supplement" loading="{{savingReview}}" disabled="{{savingReview}}" bindtap="saveReviewAnswer">保存</button></view>
+      </view>
+    </view>
   </block>
 </view>

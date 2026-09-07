@@ -13,6 +13,15 @@ function formatTime(seconds) {
   return `${minute}:${second}`;
 }
 
+function normalizeImportedTranscript(value) {
+  let text = String(value || '').trim();
+  const sourceHeading = text.indexOf('## 原始口述文本');
+  if (sourceHeading >= 0) text = text.slice(sourceHeading + '## 原始口述文本'.length).trim();
+  const acceptanceHeading = text.indexOf('## 测试观察点');
+  if (acceptanceHeading >= 0) text = text.slice(0, acceptanceHeading).trim();
+  return text;
+}
+
 Page({
   data: {
     questions,
@@ -35,11 +44,22 @@ Page({
     cloudRecordId: '',
     transcriptStatus: 'idle',
     transcript: '',
+    transcriptExpanded: false,
     storyStatus: 'idle',
     storyDraft: null,
+    showTestImport: false,
+    testImported: false,
   },
 
   onLoad() {
+    try {
+      const systemInfo = wx.getSystemInfoSync ? wx.getSystemInfoSync() : {};
+      const accountInfo = typeof wx.getAccountInfoSync === 'function' ? wx.getAccountInfoSync() : {};
+      const envVersion = accountInfo.miniProgram && accountInfo.miniProgram.envVersion;
+      this.setData({ showTestImport: systemInfo.platform === 'devtools' || envVersion === 'develop' });
+    } catch (error) {
+      console.warn('[story] test import environment detection failed', error);
+    }
     this.recorder = wx.getRecorderManager();
     this.audio = wx.createInnerAudioContext();
     this.bindRecorderEvents();
@@ -70,6 +90,7 @@ Page({
           cloudRecordId: latest.cloudRecordId || '',
           transcriptStatus: latest.transcriptStatus || 'idle',
           transcript: latest.transcript || '',
+          testImported: false,
         });
         this.audio.src = latest.localPath;
         this.restoreCloudState(latest);
@@ -254,8 +275,10 @@ Page({
       cloudRecordId: '',
       transcriptStatus: 'idle',
       transcript: '',
+      transcriptExpanded: false,
       storyStatus: 'idle',
       storyDraft: null,
+      testImported: false,
     });
     this.recorder.start({
       duration: MAX_DURATION,
@@ -327,7 +350,7 @@ Page({
     const reset = () => this.setData({
       status: 'idle', statusText: '准备好后，点击下方按钮开始', elapsed: 0,
       elapsedText: '00:00', durationText: '00:00', fileSizeText: '', tempFilePath: '', savedFilePath: '', isPlaying: false,
-      localRecordId: '', uploadStatus: 'idle', uploadProgress: 0, cloudFileId: '', cloudRecordId: '', transcriptStatus: 'idle', transcript: '', storyStatus: 'idle', storyDraft: null,
+      localRecordId: '', uploadStatus: 'idle', uploadProgress: 0, cloudFileId: '', cloudRecordId: '', transcriptStatus: 'idle', transcript: '', transcriptExpanded: false, storyStatus: 'idle', storyDraft: null, testImported: false,
     });
     if (this.data.savedFilePath) {
       wx.getFileSystemManager().unlink({ filePath: this.data.savedFilePath, complete: reset });
@@ -489,6 +512,60 @@ Page({
     console.error('[asr]', message);
     this.setData({ transcriptStatus: 'failed', statusText: '语音转写未完成' });
     wx.showModal({ title: '转写失败', content: String(message), showCancel: false });
+  },
+
+  toggleTranscript() { this.setData({ transcriptExpanded: !this.data.transcriptExpanded }); },
+
+  importTestTranscript() {
+    if (!getApp().globalData.cloudReady) {
+      wx.showToast({ title: '云环境尚未配置', icon: 'none' });
+      return;
+    }
+    wx.getClipboardData({
+      success: ({ data }) => {
+        const transcript = normalizeImportedTranscript(data);
+        if (transcript.length < 100) {
+          wx.showModal({ title: '剪贴板内容太短', content: '请先复制测试稿第 7—93 行的原始口述文本。', showCancel: false });
+          return;
+        }
+        if (transcript.length > 30000) {
+          wx.showModal({ title: '测试稿过长', content: '当前测试入口最多接收 30000 个字符。', showCancel: false });
+          return;
+        }
+        wx.showLoading({ title: '正在导入测试稿' });
+        const recordId = `text_import_${Date.now()}`;
+        wx.cloud.callFunction({
+          name: 'recordRecording',
+          data: {
+            action: 'importTranscript',
+            recordId,
+            question: '请把这段人物口述整理成真实、克制的人生故事',
+            transcript,
+          },
+          success: ({ result }) => {
+            wx.hideLoading();
+            if (!result || !result.success) {
+              wx.showModal({ title: '导入失败', content: (result && result.message) || '请重新部署录音登记云函数后再试。', showCancel: false });
+              return;
+            }
+            this.setData({
+              status: 'saved', statusText: '测试口述稿已导入，可以开始 AI 整理',
+              question: '人物经历整理测试：周明远（虚构复合案例）',
+              elapsed: 0, elapsedText: '00:00', durationText: '文本导入', fileSizeText: `${transcript.length} 字`,
+              tempFilePath: '', savedFilePath: '', localRecordId: '', isPlaying: false,
+              uploadStatus: 'uploaded', uploadProgress: 100, cloudFileId: '', cloudRecordId: recordId,
+              transcriptStatus: 'completed', transcript, transcriptExpanded: false, storyStatus: 'idle', storyDraft: null, testImported: true,
+            });
+            wx.showToast({ title: '测试稿已导入', icon: 'success' });
+          },
+          fail: (error) => {
+            wx.hideLoading();
+            wx.showModal({ title: '导入失败', content: error.errMsg || '云函数调用失败', showCancel: false });
+          },
+        });
+      },
+      fail: () => wx.showToast({ title: '无法读取剪贴板', icon: 'none' }),
+    });
   },
 
   generateStory() {

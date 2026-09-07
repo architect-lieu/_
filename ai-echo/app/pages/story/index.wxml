@@ -2,6 +2,7 @@
   <view class="section-kicker">回音十二问 · 第 1 问</view>
   <view class="section-title">{{question}}</view>
   <view class="hint">不用组织得很完整，像聊天一样慢慢说就好。</view>
+  <button wx:if="{{showTestImport}}" class="test-import-btn" bindtap="importTestTranscript">从剪贴板导入测试口述稿</button>
 
   <view class="recorder card {{status === 'recording' ? 'is-recording' : ''}}">
     <view class="pulse-wrap"><view class="pulse"></view><view class="mic">{{status === 'ready' || status === 'saved' ? '✓' : '●'}}</view></view>
@@ -22,12 +23,16 @@
   </view>
   <view wx:else class="result card">
     <view class="result-head"><view><view class="result-title">本次讲述</view><view class="result-meta">{{durationText}} · {{fileSizeText}}</view></view><view class="saved-tag" wx:if="{{status === 'saved'}}">已保存</view></view>
-    <view class="result-actions"><button class="play-btn" bindtap="togglePlayback">{{isPlaying ? 'Ⅱ 暂停试听' : '▶ 试听录音'}}</button><button class="delete-btn" bindtap="discard">删除重录</button></view>
-    <button class="confirm-btn" bindtap="confirmRecording">{{status === 'saved' ? '已保存到本机' : '确认本次讲述'}}</button>
+    <view wx:if="{{!testImported}}" class="result-actions"><button class="play-btn" bindtap="togglePlayback">{{isPlaying ? 'Ⅱ 暂停试听' : '▶ 试听录音'}}</button><button class="delete-btn" bindtap="discard">删除重录</button></view>
+    <button wx:if="{{!testImported}}" class="confirm-btn" bindtap="confirmRecording">{{status === 'saved' ? '已保存到本机' : '确认本次讲述'}}</button>
     <button wx:if="{{status === 'saved' && uploadStatus !== 'uploaded'}}" class="cloud-btn" loading="{{uploadStatus === 'uploading'}}" disabled="{{uploadStatus === 'uploading'}}" bindtap="uploadToCloud">{{uploadStatus === 'uploading' ? '正在上传 ' + uploadProgress + '%' : '上传到私有云存储'}}</button>
-    <view wx:if="{{uploadStatus === 'uploaded'}}" class="cloud-success">✓ 云端保存成功，等待语音转写</view>
+    <view wx:if="{{uploadStatus === 'uploaded'}}" class="cloud-success">{{testImported ? '✓ 测试文本已写入数据库，不调用语音识别' : '✓ 云端保存成功，等待语音转写'}}</view>
     <button wx:if="{{uploadStatus === 'uploaded' && transcriptStatus !== 'completed'}}" class="asr-btn" loading="{{transcriptStatus === 'starting' || transcriptStatus === 'processing'}}" disabled="{{transcriptStatus === 'starting' || transcriptStatus === 'processing'}}" bindtap="startTranscription">{{transcriptStatus === 'processing' ? '正在转成文字…' : '开始语音转文字'}}</button>
-    <view wx:if="{{transcriptStatus === 'completed'}}" class="transcript-box"><view class="transcript-title">原始转写稿</view><text user-select="true">{{transcript}}</text></view>
+    <view wx:if="{{transcriptStatus === 'completed'}}" class="transcript-box">
+      <view class="transcript-head" bindtap="toggleTranscript"><view class="transcript-title">原始转写</view><view>{{transcriptExpanded ? '收起' : '查看'}} ›</view></view>
+      <view wx:if="{{!transcriptExpanded}}" class="transcript-preview"><text user-select="true">{{transcript}}</text></view>
+      <scroll-view wx:else class="transcript-scroll" scroll-y enhanced show-scrollbar="{{true}}"><text user-select="true">{{transcript}}</text></scroll-view>
+    </view>
     <button wx:if="{{transcriptStatus === 'completed' && storyStatus !== 'completed'}}" class="story-btn" loading="{{storyStatus === 'generating'}}" disabled="{{storyStatus === 'generating'}}" bindtap="generateStory">{{storyStatus === 'generating' ? '正在整理故事…' : '整理成精华故事'}}</button>
     <view wx:if="{{storyDraft}}" class="story-preview">
       <view class="story-label">AI 根据你的讲述整理 · 待确认</view>
