@@ -1,0 +1,21 @@
+<view class="page detail-page">
+  <view wx:if="{{loading}}" class="empty">正在打开故事…</view>
+  <block wx:elif="{{work}}">
+    <view class="ai-note">AI 根据原始讲述整理 · {{work.statusText}}</view>
+    <block wx:if="{{editing}}">
+      <input class="title-input" value="{{editTitle}}" maxlength="80" bindinput="titleInput" />
+      <textarea class="content-input" value="{{editContent}}" maxlength="20000" auto-height bindinput="contentInput" />
+      <view class="actions"><button class="ghost" bindtap="cancelEdit">取消</button><button class="primary" loading="{{saving}}" bindtap="saveEdit">保存草稿</button></view>
+    </block>
+    <block wx:else>
+      <view class="title">{{work.title}}</view>
+      <view class="summary">{{work.summary}}</view>
+      <view class="content" user-select="true">{{work.content}}</view>
+      <view wx:if="{{work.uncertainties.length}}" class="uncertain card"><view class="uncertain-title">请核对这些信息</view><view wx:for="{{work.uncertainties}}" wx:key="*this">· {{item}}</view></view>
+      <view class="source card"><view class="source-title">原始转写</view><view user-select="true">{{work.sourceTranscript}}</view></view>
+      <button class="edit" bindtap="beginEdit">修改故事</button>
+      <button wx:if="{{work.status !== 'confirmed'}}" class="confirm" loading="{{saving}}" bindtap="confirmWork">确认内容无误</button>
+      <button class="export" disabled>导出 PDF（套餐权益）</button>
+    </block>
+  </block>
+</view>

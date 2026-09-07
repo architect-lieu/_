@@ -1,0 +1,4 @@
+<view class="page detail-page"><view class="cover"><view class="book"><view class="book-line"></view><view class="book-title">{{plan.title}}</view><view class="book-sub">AI ECHO BOOK</view></view></view>
+<view class="detail-copy"><view class="section-title">{{plan.title}}</view><view class="subtitle">{{plan.subtitle}}</view><view class="detail-price">¥{{plan.price}}<text> 起</text></view>
+<view class="feature card"><view class="feature-title">服务包含</view><view wx:for="{{plan.items}}" wx:key="*this" class="feature-row"><text>✓</text>{{item}}</view></view>
+<button class="primary-btn action" bindtap="consult" loading="{{paying}}" disabled="{{paying}}">创建订单并支付</button><view class="note">正式制作前，我们会再次确认访谈次数、篇幅、照片数量和交付时间。</view></view></view>

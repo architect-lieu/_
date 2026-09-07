@@ -1,0 +1,4 @@
+<view class="page login-page"><view class="login-mark">回</view><view class="login-title">欢迎来到 AI回音录</view><view class="login-sub">登录后，继续保存你的声音与家庭故事</view>
+<button class="wechat-btn" bindtap="login" loading="{{loading}}" disabled="{{loading}}">微信快捷登录</button>
+<view class="agreement" bindtap="toggle"><text class="check {{agreed?'checked':''}}">{{agreed?'✓':''}}</text><text>我已阅读并同意</text><text class="link" catchtap="privacy">《隐私政策》</text></view>
+<view class="demo-note">登录仅用于识别你的账号并保护个人订单与作品，不会自动获取头像和昵称。</view></view>

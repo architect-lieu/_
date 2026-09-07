@@ -1,0 +1,10 @@
+{
+  "name": "transcribe-recording",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "tencentcloud-sdk-nodejs-asr": "latest",
+    "wx-server-sdk": "latest"
+  }
+}
