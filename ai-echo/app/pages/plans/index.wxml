@@ -1,9 +1,0 @@
-<view class="page plans-page">
-  <view class="section-kicker">CHOOSE YOUR ECHO</view><view class="section-title">从一次讲述开始<br/>慢慢写成一本书</view>
-  <view class="plan-list"><view wx:for="{{plans}}" wx:key="id" class="plan card {{item.tone}}" data-id="{{item.id}}" bindtap="open">
-    <view class="plan-head"><text class="badge">{{item.badge}}</text><text class="arrow">›</text></view>
-    <view class="plan-name">{{item.name}}</view><view class="plan-desc">{{item.desc}}</view>
-    <view class="price"><text class="currency">¥</text>{{item.price}}<text class="unit">{{item.unit}}</text></view>
-  </view></view>
-  <view class="promise">不满意不勉强升级 · 正式制作前确认服务范围</view>
-</view>
